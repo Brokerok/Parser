@@ -1,0 +1,27 @@
+import requests
+from bs4 import BeautifulSoup
+import json
+
+data_dict = []
+
+for i in range(1, 8):
+    url = f'https://auto.ria.com/uk/newauto/marka-volkswagen?page={i}'
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'lxml')
+    avtos = soup.find_all(class_="proposition_link")
+    for avto in avtos:
+        avto_page_url = avto.get('href')
+        avto_page_name = avto.find_all(class_='proposition_name')
+        avto_page_name1 = avto_page_name[0].text
+        avto_page_price = avto.find_all(class_='green')
+        avto_page_price1 = avto_page_price[0].text
+        data = {
+            'avto_name': avto_page_name1.strip(),
+            'avto_link': f'https://auto.ria.com{avto_page_url}',
+            'avto_price': avto_page_price1.strip()
+        }
+        data_dict.append(data)
+
+
+with open('data.json', 'w') as file:
+    json.dump(data_dict, file, indent=4)
